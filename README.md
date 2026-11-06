@@ -89,7 +89,7 @@ cat << 'ENGINE' > "$DIR_BASH/radiobrowser.sh"
 DIR_DATA="/srv/http/data"
 DIR_WEBRADIO="$DIR_DATA/webradio"
 DIR_RB_ROOT="$DIR_WEBRADIO/Radio Browser"
-USER_AGENT="rAudio-RadioBrowser-Bash/1.0.0 (https://github.com/kan-ibal/raudio-radiobrowser)"
+USER_AGENT="rAudio-RadioBrowser-Addon/1.0.0 (https://github.com/kan-ibal/raudio-radiobrowser)"
 MIRRORS=("https://de1.api.radio-browser.info" "https://nl1.api.radio-browser.info" "https://at1.api.radio-browser.info" "https://all.api.radio-browser.info")
 
 query_rb() {

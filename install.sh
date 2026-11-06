@@ -46,7 +46,7 @@ DIR_RB_ROOT="$DIR_WEBRADIO/Radio Browser"
 DIR_MPD_WEBRADIO="/mnt/MPD/Webradio/Radio Browser"
 DIR_RADIOBROWSER_WEB="/srv/http/radiobrowser"
 
-USER_AGENT="rAudio-RadioBrowser-NativeBash/1.0.0 (https://github.com/kan-ibal/raudio-radiobrowser)"
+USER_AGENT="rAudio-RadioBrowser-Addon/1.0.0 (https://github.com/kan-ibal/raudio-radiobrowser)"
 MIRRORS=(
     "https://de1.api.radio-browser.info"
     "https://nl1.api.radio-browser.info"
@@ -1936,7 +1936,7 @@ cat <<'CONF_EOF' > "$DIR_SYSTEM/raudio-radiobrowser.conf"
 [general]
 enabled = 1
 version = 1.0.0
-user_agent = rAudio-RadioBrowser/1.0.0 (ArchLinuxARM; RaspberryPi)
+user_agent = rAudio-RadioBrowser-Addon/1.0.0 (ArchLinuxARM; RaspberryPi)
 log_level = info
 autostart = 1
 
