@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rAudio Radio Browser · Hi-Fi Station Manager</title>
+    <style>
+        :root {
+            --bg: #0c0a09;
+            --surface: #1c1917;
+            --surface-hover: #292524;
+            --border: #44403c;
+            --primary: #f59e0b;
+            --primary-hover: #d97706;
+            --text: #f5f5f4;
+            --text-muted: #a8a29e;
+            --success: #10b981;
+            --accent: #06b6d4;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 16px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        .header-title h1 { font-size: 1.4rem; font-weight: 700; color: #fff; }
+        .header-title p { font-size: 0.85rem; color: var(--text-muted); }
+        .nav-btn {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-btn:hover { background: var(--surface-hover); }
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(6,182,212,0.06));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+        .hero-banner strong { color: var(--primary); }
+        .search-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .search-input {
+            flex: 2;
+            min-width: 200px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .search-select {
+            flex: 1;
+            min-width: 140px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .curated-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .curated-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .curated-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .station-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .station-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .station-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .station-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .station-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: #262626;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .station-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .station-tags {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+        .badge {
+            background: rgba(255,255,255,0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: monospace;
+        }
+        .badge-lossless {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            font-weight: 600;
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .btn-action {
+            flex: 1;
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .btn-action:hover { background: rgba(255,255,255,0.15); }
+        .btn-play { background: #059669; border-color: #059669; }
+        .btn-play:hover { background: #10b981; }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #18181b;
+            border: 1px solid var(--primary);
+            padding: 12px 18px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.85rem;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>Radio-Browser.info · rAudio</h1>
+                <p>Search over 50,000 community stations and add directly to rAudio Web Radio</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="/" class="nav-btn">
+                    ← Back to rAudio Player
+                </a>
+            </div>
+        </header>
+
+        <div class="hero-banner">
+            <div><strong>rAudio Web Radio Integration Active (Format: /srv/http/data/webradio/&lt;Directory&gt;/data)</strong></div>
+            <div style="margin-top: 4px; color: var(--text-muted);">
+                In rAudio WebUI, open: <strong>Library &rarr; Web Radio &rarr; Radio Browser</strong>.
+                Use the new search field right inside Web Radio, or click "Add to Web Radio" below.
+                Each station is saved as <code>&lt;Station Directory&gt;/data</code> containing the direct stream hyperlink and cover art!
+            </div>
+        </div>
+
+        <div class="search-panel">
+            <div class="search-row">
+                <input type="text" id="searchInput" class="search-input" placeholder="Station name..." value="Paradise" style="flex: 2;">
+                <input type="text" id="tagInput" class="search-input" placeholder="Tag / Genre (e.g. jazz, ambient)..." style="flex: 1.5;">
+                <input type="text" id="countryInput" class="search-input" placeholder="Country (US, PL, DE)..." maxlength="2" style="flex: 1; max-width: 140px; text-transform: uppercase;">
+                <select id="codecSelect" class="search-select">
+                    <option value="">All Codecs</option>
+                    <option value="FLAC">FLAC (Lossless)</option>
+                    <option value="MP3">MP3</option>
+                    <option value="AAC">AAC / AAC+</option>
+                </select>
+                <select id="bitrateSelect" class="search-select">
+                    <option value="0">Any Bitrate</option>
+                    <option value="320">320 kbps (Audiophile)</option>
+                    <option value="256">256 kbps</option>
+                    <option value="192">192 kbps</option>
+                    <option value="128">128 kbps</option>
+                </select>
+                <button class="btn-primary" onclick="doSearch()">
+                    🔍 Search
+                </button>
+            </div>
+            <div class="curated-tags">
+                <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Quick filters:</span>
+                <button class="curated-btn" onclick="quickFilter('', 'flac', '', 'FLAC', 0)">FLAC Lossless</button>
+                <button class="curated-btn" onclick="quickFilter('Linn', 'classical', 'GB', 'MP3', 320)">Linn Classical (GB)</button>
+                <button class="curated-btn" onclick="quickFilter('SomaFM', 'ambient', 'US', '', 256)">SomaFM Ambient (US)</button>
+                <button class="curated-btn" onclick="quickFilter('', 'jazz', 'PL', '', 192)">Polish Jazz (PL)</button>
+                <button class="curated-btn" onclick="quickFilter('', 'jazz', 'US', '', 192)">US Jazz (US)</button>
+                <button class="curated-btn" onclick="quickFilter('', 'classical', 'DE', '', 192)">German Classical (DE)</button>
+                <button class="curated-btn" onclick="seedPresets()">Reload Curated Presets</button>
+            </div>
+        </div>
+
+        <div id="resultsGrid" class="station-grid">
+            <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
+                Loading stations...
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_PATH = '/app/radiobrowser.php';
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3500);
+        }
+
+        async function doSearch() {
+            const name = document.getElementById('searchInput').value.trim();
+            const tag = document.getElementById('tagInput') ? document.getElementById('tagInput').value.trim() : '';
+            const country = document.getElementById('countryInput') ? document.getElementById('countryInput').value.trim().toUpperCase() : '';
+            const codec = document.getElementById('codecSelect').value;
+            const bitrate = document.getElementById('bitrateSelect').value;
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Searching radio-browser mirrors...</div>';
+
+            try {
+                const params = new URLSearchParams({
+                    action: 'search',
+                    order: 'votes',
+                    reverse: 'true',
+                    limit: '30',
+                    hidebroken: 'true'
+                });
+                if (name) params.append('name', name);
+                if (tag) params.append('tag', tag);
+                if (country) params.append('countrycode', country);
+                if (codec && codec !== 'ALL') params.append('codec', codec);
+                if (bitrate && bitrate !== '0') params.append('bitrateMin', bitrate);
+
+                const res = await fetch(API_PATH + '?' + params.toString());
+                const stations = await res.json();
+                renderStations(stations);
+            } catch (e) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 40px;">Failed to query stations. Check network connection.</div>';
+            }
+        }
+
+        const EMPTY_ICON = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24'%3E%3C/svg%3E";
+
+        function getStationIcon(fav) {
+            if (!fav || typeof fav !== 'string') return EMPTY_ICON;
+            const trimmed = fav.trim();
+            if (!trimmed || 
+                trimmed === 'data:image/svg+xml,<svg xmlns=' || 
+                trimmed.startsWith('data:image/svg+xml,<svg xmlns=') || 
+                trimmed.startsWith('data:image/svg+xml,<svg')) {
+                return EMPTY_ICON;
+            }
+            return trimmed;
+        }
+
+        function renderStations(stations) {
+            const grid = document.getElementById('resultsGrid');
+            if (!stations || stations.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No stations found. Try broadening your query.</div>';
+                return;
+            }
+
+            grid.innerHTML = stations.map(s => {
+                const isLossless = (s.codec || '').toUpperCase() === 'FLAC' || (s.bitrate || 0) >= 900;
+                const icon = getStationIcon(s.favicon);
+                const subfolder = isLossless ? 'FLAC Lossless' : 'Audiophile 320k';
+                return `
+                    <div class="station-card">
+                        <div class="station-header">
+                            <img src="${icon}" class="station-icon" onerror="this.src='${EMPTY_ICON}'; this.onerror=null;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div class="station-title" title="${s.name}">${s.name}</div>
+                                <div class="station-tags">${s.tags || s.country || 'Global Stream'}</div>
+                                <div class="badges">
+                                    <span class="badge ${isLossless ? 'badge-lossless' : ''}">${s.codec || 'MP3'}</span>
+                                    <span class="badge">${s.bitrate ? s.bitrate + ' kbps' : 'VBR'}</span>
+                                    ${s.countrycode ? `<span class="badge">${s.countrycode}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn-action btn-play" onclick="playStation('${s.stationuuid}', '${encodeURIComponent(s.url_resolved || s.url)}')">▶ Play</button>
+                            <button class="btn-action" onclick="saveToRaudio('${encodeURIComponent(s.name)}', '${encodeURIComponent(s.url_resolved || s.url)}', '${encodeURIComponent(icon)}', '${subfolder}')">➕ Add to Web Radio</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function playStation(uuid, encUrl) {
+            showToast('Starting stream on rAudio MPD...');
+            try {
+                const fd = new FormData();
+                fd.append('action', 'play');
+                fd.append('uuid', uuid);
+                fd.append('url', decodeURIComponent(encUrl));
+                const res = await fetch(API_PATH, { method: 'POST', body: fd });
+                const json = await res.json();
+                if (json.success) {
+                    showToast('Playing on rAudio!');
+                } else {
+                    showToast('Stream dispatched to MPD');
+                }
+            } catch (e) {
+                showToast('Error sending playback command');
+            }
+        }
+
+        async function saveToRaudio(encName, encUrl, encIcon, subfolder) {
+            showToast('Saving to rAudio /srv/http/data/webradio (' + subfolder + ')...');
+            try {
+                const fd = new FormData();
+                fd.append('action', 'save_webradio');
+                fd.append('name', decodeURIComponent(encName));
+                fd.append('url', decodeURIComponent(encUrl));
+                fd.append('icon', decodeURIComponent(encIcon));
+                fd.append('subfolder', subfolder);
+                const res = await fetch(API_PATH, { method: 'POST', body: fd });
+                const json = await res.json();
+                if (json.success) {
+                    showToast('Saved to rAudio: ' + subfolder + '/' + decodeURIComponent(encName) + '/data');
+                } else {
+                    showToast('Failed to save: ' + (json.error || 'Unknown error'));
+                }
+            } catch (e) {
+                showToast('Error saving station');
+            }
+        }
+
+        async function seedPresets() {
+            showToast('Seeding curated audiophile presets in Directory/data format...');
+            try {
+                const res = await fetch(API_PATH + '?action=presets');
+                const json = await res.json();
+                showToast('Curated presets reloaded into rAudio Web Radio!');
+            } catch (e) {
+                showToast('Error running presets command');
+            }
+        }
+
+        function quickFilter(name, tag, country, codec, bitrate) {
+            document.getElementById('searchInput').value = name || '';
+            if (document.getElementById('tagInput')) document.getElementById('tagInput').value = tag || '';
+            if (document.getElementById('countryInput')) document.getElementById('countryInput').value = country || '';
+            document.getElementById('codecSelect').value = codec || '';
+            document.getElementById('bitrateSelect').value = bitrate || '0';
+            doSearch();
+        }
+
+        // Initial search on load, respecting query params "?q=...", "?tag=...", "?genre=...", "?country=..."
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const query = params.get('q') || params.get('name');
+            const tag = params.get('tag') || params.get('genre');
+            const country = params.get('countrycode') || params.get('country_code') || params.get('country');
+
+            if (query) document.getElementById('searchInput').value = query;
+            if (tag && document.getElementById('tagInput')) document.getElementById('tagInput').value = tag;
+            if (country && document.getElementById('countryInput')) document.getElementById('countryInput').value = country.toUpperCase();
+
+            doSearch();
+        });
+    </script>
+</body>
+</html>

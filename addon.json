@@ -1,0 +1,12 @@
+{
+  "raudio-radiobrowser": {
+    "title": "rAudio Radio-Browser.info",
+    "installurl": "https://raw.githubusercontent.com/kan-ibal/raudio-radiobrowser/install.sh",
+    "version": "1.0.0",
+    "description": "Browse, search, and stream community radio stations with metadata and cover support",
+    "sourcecode": "https://raw.githubusercontent.com/kan-ibal/raudio-radiobrowser",
+    "buttonlabel": "Install",
+    "nouninstall": false,
+    "installed": true
+  }
+}
